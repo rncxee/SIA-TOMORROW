@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AniTrack — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <div class="sidebar__brand">
+            🌱 AniTrack
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="active">📊 Dashboard</a>
+            <a href="plots.html">🌾 Plots</a>
+            <a href="watering.html">💧 Watering Tasks</a>
+            <a href="harvest.html">🧺 Harvest Records</a>
+            <a href="seeds.html">🌰 Seed Inventory</a>
+            <a href="calendar.html">📅 Calendar</a>
+        </nav>
+
+        <p class="sidebar__note">Onion & Rice plot tracking for the community garden.</p>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main">
+
+        <div class="main__header">
+            <h1>Dashboard</h1>
+            <p>Here's what's happening across the onion and rice plots today.</p>
+        </div>
+
+        <!-- Stat cards -->
+        <section class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-card__value" id="stat-onion">–</div>
+                <div class="stat-card__label">Onion Plots</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__value" id="stat-rice">–</div>
+                <div class="stat-card__label">Rice Plots</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__value" id="stat-tasks">–</div>
+                <div class="stat-card__label">Watering Tasks Due Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__value" id="stat-harvests">–</div>
+                <div class="stat-card__label">Harvests This Week</div>
+            </div>
+        </section>
+
+        <!-- Plot overview grid -->
+        <section class="panel">
+            <h2>Plot Overview</h2>
+            <p class="panel__subtitle">A quick visual of every plot — full add/edit tools live on the <a href="plots.html" style="color:var(--color-leaf); text-decoration:underline;">Plots page</a>.</p>
+            <div class="plot-grid" id="plot-grid">
+                <p class="empty-note">Loading plots…</p>
+            </div>
+        </section>
+
+        <div class="dashboard-columns">
+
+            <!-- Today's watering tasks -->
+            <section class="panel">
+                <h2>Today's Watering Tasks</h2>
+                <ul class="task-list" id="task-list">
+                    <li><p class="empty-note">Loading tasks…</p></li>
+                </ul>
+            </section>
+
+            <div>
+                <!-- Recent harvest -->
+                <section class="panel">
+                    <h2>Recent Harvest</h2>
+                    <ul class="harvest-list" id="harvest-list">
+                        <li><p class="empty-note">Loading harvests…</p></li>
+                    </ul>
+                </section>
+
+                <!-- Seed inventory -->
+                <section class="panel">
+                    <h2>Seed Inventory</h2>
+                    <div id="seed-list">
+                        <p class="empty-note">Loading seed inventory…</p>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>

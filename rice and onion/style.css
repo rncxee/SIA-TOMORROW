@@ -1,0 +1,332 @@
+/* ============================================================
+   ANITRACK — STYLESHEET (v4, full 5-page CRUD scope)
+   ------------------------------------------------------------
+   1. Design tokens
+   2. Reset / base
+   3. Layout (sidebar + main)
+   4. Stat cards
+   5. Plot overview grid
+   6. Panels (tasks / harvest / seeds)
+   7. Responsive
+   ============================================================ */
+
+/* ---------- 1. DESIGN TOKENS ---------- */
+:root {
+    --color-bg:        #F5F1E6;
+    --color-surface:   #FFFFFF;
+    --color-forest:    #1E3620;
+    --color-forest-2:  #2E4E30;
+    --color-khaki:     #C9AE84;
+    --color-leaf:      #3F7A3F;
+    --color-text:      #26261E;
+    --color-text-soft: #6E6C5E;
+    --color-border:    #E4DCC6;
+
+    --status-green-bg: #DAF3E2; --status-green-text: #1E7A46;
+    --status-amber-bg: #FBEACB; --status-amber-text: #9A6B0A;
+
+    --font-display: 'Fraunces', serif;
+    --font-body:    'Inter', sans-serif;
+
+    --space-xs: 6px; --space-sm: 12px; --space-md: 20px;
+    --space-lg: 32px; --space-xl: 48px;
+    --radius: 10px;
+}
+
+/* ---------- 2. RESET / BASE ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; }
+ul { list-style: none; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--color-forest); }
+
+/* ---------- 3. LAYOUT ---------- */
+.app-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--color-forest);
+    color: #EDEAD9;
+    padding: var(--space-lg) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.sidebar__brand { font-family: var(--font-display); font-size: 1.5rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+.sidebar__brand span { display: block; font-family: var(--font-body); font-size: 0.75rem; color: #B7C79A; margin-top: 2px; }
+
+.sidebar__nav { display: flex; flex-direction: column; gap: 2px; }
+.sidebar__nav a {
+    padding: var(--space-sm); border-radius: var(--radius);
+    font-size: 0.95rem; color: #D9D6C3; transition: background 0.15s ease;
+    display: flex; align-items: center; gap: 8px;
+}
+.sidebar__nav a:hover, .sidebar__nav a.active { background: var(--color-forest-2); color: #fff; }
+.sidebar__nav a.disabled { opacity: 0.5; cursor: default; }
+.sidebar__note { font-size: 0.75rem; color: #94A587; margin-top: auto; }
+
+.main { flex: 1; padding: var(--space-lg) var(--space-xl); }
+.main__header { margin-bottom: var(--space-lg); }
+.main__header p { color: var(--color-text-soft); margin-top: 4px; }
+
+/* ---------- 4. STAT CARDS ---------- */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-md); }
+.stat-card__value { font-family: var(--font-display); font-size: 2.2rem; color: var(--color-leaf); }
+.stat-card__label { font-size: 0.85rem; color: var(--color-text-soft); margin-top: 4px; }
+
+/* ---------- 5. PLOT OVERVIEW GRID ---------- */
+.panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-md); margin-bottom: var(--space-lg); }
+.panel h2 { font-size: 1.2rem; margin-bottom: var(--space-sm); }
+.panel__subtitle { color: var(--color-text-soft); font-size: 0.85rem; margin-bottom: var(--space-md); }
+
+.plot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+
+.plot-tile { border: 2px solid var(--color-border); border-radius: var(--radius); padding: var(--space-sm) var(--space-md); }
+.plot-tile--occupied { border-color: #1E7A46; }
+.plot-tile--available { border-color: #C98A0A; }
+
+.plot-tile__name { font-weight: 700; }
+.plot-tile__crop { font-size: 0.8rem; color: var(--color-text-soft); margin: 2px 0 6px; }
+
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.pill--green { background: var(--status-green-bg); color: var(--status-green-text); }
+.pill--amber { background: var(--status-amber-bg); color: var(--status-amber-text); }
+.pill--onion { background: #F3E4D0; color: #8A5A0A; }
+.pill--rice  { background: #E2ECD9; color: #3F6B2A; }
+
+
+/* ---------- 6. TWO-COLUMN PANELS ---------- */
+.dashboard-columns { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-lg); }
+
+.task-list li, .harvest-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+}
+.task-list li:last-child, .harvest-list li:last-child { border-bottom: none; }
+.task-list__name.done { text-decoration: line-through; color: var(--color-text-soft); }
+
+.seed-row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border); font-size: 0.9rem; }
+.seed-row:last-child { border-bottom: none; }
+.seed-row__qty { font-weight: 700; }
+
+.empty-note { color: var(--color-text-soft); font-size: 0.9rem; font-style: italic; }
+
+/* ---------- 6b. FORMS (used on Plots / Tasks / Harvest / Seeds) ---------- */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    align-items: flex-end;
+    margin-bottom: var(--space-lg);
+}
+
+.form-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--color-text-soft); }
+.form-field input, .form-field select, .form-field textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background: var(--color-surface);
+}
+
+.btn {
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.btn-primary { background: var(--color-forest); color: #fff; }
+.btn-primary:hover { background: var(--color-forest-2); }
+.btn-small { padding: 5px 12px; font-size: 0.8rem; border-radius: 6px; background: #EAF2E7; color: var(--color-leaf); font-weight: 600; }
+
+.form-message { font-size: 0.85rem; margin-bottom: var(--space-md); }
+.form-message.success { color: #1E7A46; }
+.form-message.error { color: #B4351C; }
+
+/* ---------- 6c. DATA TABLES (Plots / Watering Tasks / Harvest Records / Seeds) ---------- */
+.data-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius); overflow: hidden; }
+.data-table th {
+    text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--color-text-soft); padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-border);
+    background: #FAF6EA;
+}
+.data-table td { padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-border); font-size: 0.9rem; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table select, .data-table input { padding: 5px 8px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 0.85rem; }
+
+.planting-subrow td { background: #FAF6EA; }
+.planting-subrow .form-row { margin-bottom: 0; }
+
+/* ---------- 7. RESPONSIVE ---------- */
+@media (max-width: 900px) {
+    .app-layout { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+    .sidebar__nav { flex-direction: row; }
+    .sidebar__note { display: none; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .plot-grid { grid-template-columns: repeat(2, 1fr); }
+    .plot-grid2 { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-columns { grid-template-columns: 1fr; }
+}
+
+/* =========================
+   HARVEST CALENDAR
+========================= */
+
+.harvest-calendar-section {
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.calendar-header button {
+    border: none;
+    background: #f1f1f1;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.calendar-header button:hover {
+    background: #ddd;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-weekdays div {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    color: #666;
+}
+
+.calendar-day {
+    min-height: 100px;
+    border: 1px solid #eee;
+    padding: 8px;
+    position: relative;
+}
+
+.calendar-day.empty {
+    background: #fafafa;
+}
+
+.day-number {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.harvest-item {
+    margin-top: 7px;
+    padding: 5px 7px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.harvest-upcoming {
+    background: #e8f4ff;
+    color: #1769aa;
+}
+
+.harvest-soon {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.harvest-ready {
+    background: #d4edda;
+    color: #155724;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.calendar-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.calendar-legend i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-upcoming {
+    background: #e8f4ff;
+}
+
+.legend-soon {
+    background: #fff3cd;
+}
+
+.legend-ready {
+    background: #d4edda;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 75px;
+    }
+
+    .harvest-item {
+        font-size: 10px;
+    }
+
+    .calendar-weekdays div {
+        font-size: 11px;
+    }
+
+    .calendar-legend {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

@@ -1,0 +1,134 @@
+shell(
+    'Harvest Records',
+    'Log each harvest and keep a running history per plot.',
+    `
+        <section class="card">
+            <h2>Log a Harvest</h2>
+
+            <form id="harvestForm" class="form-row">
+                <label>
+                    Plot
+                    <select name="plot_id" id="harvestPlot" required></select>
+                </label>
+
+                <label>
+                    Date
+                    <input type="date" name="harvest_date" required>
+                </label>
+
+                <label>
+                    Quantity (kg)
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="e.g. 12.5"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Notes (optional)
+                    <input
+                        name="notes"
+                        placeholder="e.g. Good bulb size"
+                    >
+                </label>
+
+                <button>＋ Log Harvest</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Harvest History</h2>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Plot</th>
+                            <th>Crop</th>
+                            <th>Quantity</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="harvestBody"></tbody>
+                </table>
+            </div>
+        </section>
+    `
+);
+
+async function load() {
+    try {
+        const [p, h] = await Promise.all([
+            api('get_plots.php'),
+            api('get_harvests.php')
+        ]);
+
+        document.getElementById('harvestPlot').innerHTML =
+            plotOptions(p.plots);
+
+        document.getElementById('harvestBody').innerHTML =
+            h.harvests.map(x => `
+                <tr>
+                    <td>${esc(x.harvest_date)}</td>
+                    <td>${esc(x.plot_name)}</td>
+                    <td>${cropBadge(x.crop_type)}</td>
+                    <td>${Number(x.quantity).toLocaleString()} kg</td>
+                    <td>${esc(x.notes || '')}</td>
+                    <td>
+                        <button
+                            class="small danger"
+                            onclick="delHarvest(${x.id})"
+                        >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+        setDefaultDates();
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+document
+    .getElementById('harvestForm')
+    .addEventListener('submit', async e => {
+        e.preventDefault();
+
+        try {
+            await post(
+                'add_harvest.php',
+                Object.fromEntries(new FormData(e.target))
+            );
+
+            toast('Harvest logged.');
+            e.target.reset();
+            setDefaultDates();
+            load();
+        } catch (x) {
+            toast(x.message, true);
+        }
+    });
+
+window.delHarvest = async id => {
+    if (!confirm('Delete this harvest record?')) return;
+
+    try {
+        await post('delete_harvest.php', { id });
+
+        toast('Harvest deleted.');
+        load();
+    } catch (e) {
+        toast(e.message, true);
+    }
+};
+
+load();

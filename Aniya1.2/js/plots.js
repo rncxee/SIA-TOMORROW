@@ -1,0 +1,337 @@
+shell(
+    'Plots',
+    "Add new plots, edit existing ones, and manage what's currently planted.",
+    `
+        <section class="card">
+            <h2>Plot Overview</h2>
+            <p>A quick visual of every plot</p>
+            <div id="plotOverview" class="plot-grid"></div>
+        </section>
+
+        <section class="card">
+            <h2>Add a New Plot</h2>
+
+            <form id="plotForm" class="form-row">
+                <label>
+                    Plot Name
+                    <input
+                        name="name"
+                        required
+                        placeholder="e.g. Plot B1"
+                    >
+                </label>
+
+                <label>
+                    Crop Type
+                    <select name="crop_type">
+                        <option>Onion</option>
+                        <option>Rice</option>
+                    </select>
+                </label>
+
+                <label>
+                    Status
+                    <select name="status">
+                        <option>Available</option>
+                        <option>Occupied</option>
+                        <option>Maintenance</option>
+                    </select>
+                </label>
+
+                <button>＋ Add Plot</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>All Plots</h2>
+
+            <p>
+                Change the name, crop type, or status directly in the row,
+                then click Save. Click Plants to view or update what's planted.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plot Name</th>
+                            <th>Crop Type</th>
+                            <th>Status</th>
+                            <th>Current Planting</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="plotsBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="plantModal" class="modal hidden"></div>
+    `
+);
+
+let plots = [];
+
+async function loadPlots() {
+    try {
+        const d = await api('get_plots.php');
+
+        plots = d.plots;
+
+        document.getElementById('plotOverview').innerHTML =
+            plots.map(p => `
+                <div class="plot-card">
+                    <strong>${esc(p.name)}</strong>
+                    <small>
+                        ${esc(p.crop_name || 'No current planting')}
+                    </small>
+
+                    <div>
+                        ${cropBadge(p.crop_type)}
+                        ${statusBadge(p.status)}
+                    </div>
+                </div>
+            `).join('');
+
+        document.getElementById('plotsBody').innerHTML =
+            plots.map(p => `
+                <tr>
+                    <td>
+                        <input
+                            class="cell-input"
+                            value="${esc(p.name)}"
+                            data-name
+                        >
+                    </td>
+
+                    <td>
+                        <select data-crop>
+                            <option
+                                ${p.crop_type === 'Onion' ? 'selected' : ''}
+                            >
+                                Onion
+                            </option>
+
+                            <option
+                                ${p.crop_type === 'Rice' ? 'selected' : ''}
+                            >
+                                Rice
+                            </option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <select data-status>
+                            ${[
+                                'Available',
+                                'Occupied',
+                                'Maintenance'
+                            ].map(s => `
+                                <option
+                                    ${p.status === s ? 'selected' : ''}
+                                >
+                                    ${s}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </td>
+
+                    <td>
+                        ${
+                            p.crop_name
+                                ? `${esc(p.crop_name)}${
+                                    p.variety
+                                        ? ' — ' + esc(p.variety)
+                                        : ''
+                                }`
+                                : '—'
+                        }
+                    </td>
+
+                    <td class="actions">
+                        <button
+                            class="small"
+                            onclick="savePlot(${p.id},this)"
+                        >
+                            💾 Save
+                        </button>
+
+                        <button
+                            class="small"
+                            onclick="plant(${p.id})"
+                        >
+                            🌱 Plants
+                        </button>
+
+                        <button
+                            class="small danger"
+                            onclick="delPlot(${p.id})"
+                        >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+    } catch (e) {
+        toast(e.message, true);
+    }
+}
+
+document
+    .getElementById('plotForm')
+    .addEventListener('submit', async e => {
+        e.preventDefault();
+
+        const f = new FormData(e.target);
+
+        try {
+            await post(
+                'add_plot.php',
+                Object.fromEntries(f)
+            );
+
+            e.target.reset();
+            toast('Plot added.');
+            loadPlots();
+
+        } catch (x) {
+            toast(x.message, true);
+        }
+    });
+
+window.savePlot = async (id, b) => {
+    const tr = b.closest('tr');
+
+    try {
+        await post('update_plot.php', {
+            id,
+            name: tr.querySelector('[data-name]').value,
+            crop_type: tr.querySelector('[data-crop]').value,
+            status: tr.querySelector('[data-status]').value
+        });
+
+        toast('Plot updated.');
+        loadPlots();
+
+    } catch (e) {
+        toast(e.message, true);
+    }
+};
+
+window.delPlot = async id => {
+    if (!confirm('Delete this plot and its related records?')) return;
+
+    try {
+        await post('delete_plot.php', { id });
+
+        toast('Plot deleted.');
+        loadPlots();
+
+    } catch (e) {
+        toast(e.message, true);
+    }
+};
+
+window.plant = async id => {
+    const p = plots.find(x => x.id == id);
+
+    document.getElementById('plantModal').className = 'modal';
+
+    document.getElementById('plantModal').innerHTML = `
+        <div class="modal-box">
+            <button
+                class="close"
+                onclick="closePlant()"
+            >
+                ×
+            </button>
+
+            <h2>Planting — ${esc(p.name)}</h2>
+
+            <form id="plantForm">
+                <input
+                    type="hidden"
+                    name="plot_id"
+                    value="${p.id}"
+                >
+
+                <label>
+                    Crop / Plant Name
+                    <input
+                        name="crop_name"
+                        value="${esc(p.crop_name || '')}"
+                        required
+                        placeholder="e.g. Red Creole Onion"
+                    >
+                </label>
+
+                <label>
+                    Variety
+                    <input
+                        name="variety"
+                        value="${esc(p.variety || '')}"
+                        placeholder="e.g. Red Creole"
+                    >
+                </label>
+
+                <div class="form-row">
+                    <label>
+                        Planted Date
+                        <input
+                            type="date"
+                            name="planted_date"
+                            value="${p.planted_date || today()}"
+                            required
+                        >
+                    </label>
+
+                    <label>
+                        Expected Harvest
+                        <input
+                            type="date"
+                            name="expected_harvest_date"
+                            value="${p.expected_harvest_date || ''}"
+                        >
+                    </label>
+                </div>
+
+                <label>
+                    Notes
+                    <textarea
+                        name="notes"
+                        placeholder="Optional notes"
+                    >${esc(p.planting_notes || '')}</textarea>
+                </label>
+
+                <button>＋ Save Planting</button>
+            </form>
+        </div>
+    `;
+};
+
+window.closePlant = () =>
+    document.getElementById('plantModal').className = 'modal hidden';
+
+document.addEventListener('submit', async e => {
+    if (e.target.id !== 'plantForm') return;
+
+    e.preventDefault();
+
+    try {
+        await post(
+            'add_planting.php',
+            Object.fromEntries(new FormData(e.target))
+        );
+
+        toast('Planting saved.');
+        closePlant();
+        loadPlots();
+
+    } catch (x) {
+        toast(x.message, true);
+    }
+});
+
+loadPlots();

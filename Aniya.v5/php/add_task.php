@@ -1,0 +1,26 @@
+<?php
+
+require 'config.php';
+
+$d = input();
+
+$plot = (int)($d['plot_id'] ?? 0);
+$date = required($d, 'task_date');
+
+if (!$plot) {
+    json_error('Select a plot.');
+}
+
+$s = $pdo->prepare(
+    'INSERT INTO watering_tasks(plot_id,task_date)
+     VALUES(?,?)'
+);
+
+$s->execute([
+    $plot,
+    $date
+]);
+
+json_ok([
+    'message' => 'Watering task added.'
+]);

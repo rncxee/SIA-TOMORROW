@@ -1,0 +1,23 @@
+/* ==========================================================================
+   inventory.css
+   C&I Inventory page: Seeds / Harvest tabs.
+   ========================================================================== */
+
+/* C&I Inventory tabs */
+.inventory-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.inventory-tabs .tab-btn {
+    margin: 0;
+}
+
+.inventory-tabs .tab-btn.active {
+    font-weight: 700;
+}
+
+.inventory-tab[hidden] {
+    display: none;
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Aniya — Register</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body data-page="auth">
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <div class="auth-brand">🌱 Aniya</div>
+            <p class="auth-sub">Create your account.</p>
+
+            <form id="registerForm">
+                <label>Full name
+                    <input type="text" id="full_name" required autofocus>
+                </label>
+                <label>Username
+                    <input type="text" id="username" required>
+                </label>
+                <label>Password
+                    <input type="password" id="password" required>
+                </label>
+                <label>Confirm password
+                    <input type="password" id="confirm_password" required>
+                </label>
+                <button type="submit">Register</button>
+            </form>
+
+            <p class="auth-switch">Already have an account? <a href="login.html">Log in</a></p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="../assets/js/core.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
